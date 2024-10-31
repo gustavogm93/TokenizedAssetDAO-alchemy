@@ -2,45 +2,60 @@ const AssetToken = artifacts.require("AssetToken");
 
 contract("AssetToken", (accounts) => {
   let tokenInstance;
-
+  const TOTAL_TOKENIZED_ACTIONS = 1000000;
   before(async () => {
     tokenInstance = await AssetToken.deployed();
   });
 
-  it("debería asignar el suministro inicial al creador del contrato", async () => {
-    const balance = await tokenInstance.balanceOf(accounts[0]);
+  it("debería inicializar el contrato con la metadata correcta", async () => {
+    const name = await tokenInstance.companyName();
+    const symbol = await tokenInstance.stockSymbol();
+    const assetValue = await tokenInstance.assetValue();
+    const totalShares = await tokenInstance.totalShares();
+
+    assert.equal(name, "Apple Inc.", "El nombre de la empresa no coincide");
+    assert.equal(symbol, "AAPL", "El símbolo bursátil no coincide");
     assert.equal(
-      balance.toString(),
-      web3.utils.toWei("1000000", "ether"),
-      "El balance inicial no coincide"
+      assetValue.toString(),
+      "150",
+      "El valor del activo inicial no coincide"
+    );
+    assert.equal(
+      totalShares.toString(),
+      TOTAL_TOKENIZED_ACTIONS.toString(),
+      "El total de acciones no coincide"
     );
   });
 
-  it("debería permitir la emisión de nuevos tokens por el propietario", async () => {
-    await tokenInstance.mintTokens(
-      accounts[1],
-      web3.utils.toWei("500", "ether"),
-      { from: accounts[0] }
-    );
-    const balance = await tokenInstance.balanceOf(accounts[1]);
+  it("debería calcular el valor de mercado total correctamente", async () => {
+    const marketValue = await tokenInstance.getMarketValue();
+    const expectedMarketValue = 150 * TOTAL_TOKENIZED_ACTIONS; // Multiplicamos el valor por la cantidad de acciones tokenizadas
     assert.equal(
-      balance.toString(),
-      web3.utils.toWei("500", "ether"),
-      "La emisión de tokens no fue correcta"
+      marketValue.toString(),
+      expectedMarketValue.toString(),
+      "El valor de mercado no coincide"
     );
   });
 
-  it("debería permitir la quema de tokens por el propietario", async () => {
-    await tokenInstance.burnTokens(
-      accounts[1],
-      web3.utils.toWei("100", "ether"),
-      { from: accounts[0] }
-    );
-    const balance = await tokenInstance.balanceOf(accounts[1]);
+  it("debería permitir al propietario actualizar el valor del activo", async () => {
+    await tokenInstance.updateAssetValue(200, { from: accounts[0] });
+    const updatedValue = await tokenInstance.assetValue();
+
     assert.equal(
-      balance.toString(),
-      web3.utils.toWei("400", "ether"),
-      "La quema de tokens no fue correcta"
+      updatedValue.toString(),
+      "200",
+      "El valor del activo no se actualizó correctamente"
+    );
+  });
+
+  it("debería calcular el nuevo valor de mercado después de actualizar el valor del activo", async () => {
+    const marketValue = await tokenInstance.getMarketValue();
+    const expectedMarketValue = 200 * TOTAL_TOKENIZED_ACTIONS; // 200 * 1000000
+
+    assert.equal(
+      marketValue.toString(),
+      expectedMarketValue,
+      "El nuevo valor de mercado no coincide"
     );
   });
 });

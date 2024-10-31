@@ -71,6 +71,13 @@ module.exports = {
       timeoutBlocks: 200,
       skipDryRun: true,
     },
+    development: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "*",
+      gas: 6721975, // Aumenta el límite de gas
+      gasPrice: 20000000000, // Ajusta el precio del gas si es necesario
+    },
   },
 
   // Set default mocha options here, use special reporters, etc.
@@ -81,7 +88,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "^0.8.0",
+      version: "0.8.20",
     },
   },
 
