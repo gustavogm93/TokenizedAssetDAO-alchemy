@@ -26,20 +26,21 @@ npm i
 ### Setup
 
 Configure .env file:
-
+```
 MNEMONIC="your mnemonic phrase here"
 ALCHEMY_API_KEY="your Alchemy API key"
-
+```
 Configure truffle-config.js
 
 Ensure that the development network is configured for Ganache and change network for dev usage.
 
 ### Deployment
-
+```
 truffle migrate --network development # For Ganache
 truffle migrate --network sepolia # For Sepolia
-
+```
 ### Testing
-
+```
 truffle test --network development # For local testing
 truffle test --network sepolia # For testing on Sepolia
+```
